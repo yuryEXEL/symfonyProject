@@ -13,15 +13,22 @@ class UserManager
     ) {
     }
 
-    public function create(string $login): User
+    public function create(string $login, string $password, string $email): User
     {
         $user = new User();
         $user->setLogin($login);
+        $user->setPassword($password);
+        $user->setEmail($email);
         $user->setCreatedAt();
         $user->setUpdatedAt();
         $this->entityManager->persist($user);
         $this->entityManager->flush();
 
         return $user;
+    }
+
+    public function clearEntityManager(): void
+    {
+        $this->entityManager->clear();
     }
 }

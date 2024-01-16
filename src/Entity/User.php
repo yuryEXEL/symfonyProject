@@ -3,14 +3,19 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use DateTime;
+use App\Doctrine\Trait\MetaTimestampsTrait;
+use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
 use JetBrains\PhpStorm\ArrayShape;
 
 #[ORM\Table(name: '`user`')]
-#[ORM\Entity]
-class User
+#[ORM\Entity(repositoryClass: UserRepository::class)]
+class User implements HasMetaTimestampsInterface
 {
+    use MetaTimestampsTrait;
+
+    private const DATE_TIME_FORMAT = 'd-m-Y H:i:s';
+
     #[ORM\Column(name: 'id', type: 'bigint', unique: true)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
@@ -19,11 +24,11 @@ class User
     #[ORM\Column(type: 'string', length: 32, nullable: false)]
     private string $login;
 
-    #[ORM\Column(name: 'created_at', type: 'datetime', nullable: false)]
-    private DateTime $createdAt;
+    #[ORM\Column(type: 'string', length: 255, nullable: false)]
+    private string $password;
 
-    #[ORM\Column(name: 'updated_at', type: 'datetime', nullable: false)]
-    private DateTime $updatedAt;
+    #[ORM\Column(type: 'string', length: 255, nullable: false)]
+    private string $email;
 
     public function getId(): int
     {
@@ -45,30 +50,43 @@ class User
         $this->login = $login;
     }
 
-    public function getCreatedAt(): DateTime {
-        return $this->createdAt;
+    public function getPassword(): string
+    {
+        return $this->password;
     }
 
-    public function setCreatedAt(): void {
-        $this->createdAt = new DateTime();
+    public function setPassword(string $password): void
+    {
+        $this->password = $password;
     }
 
-    public function getUpdatedAt(): DateTime {
-        return $this->updatedAt;
+    public function getEmail(): string
+    {
+        return $this->email;
     }
 
-    public function setUpdatedAt(): void {
-        $this->updatedAt = new DateTime();
+    public function setEmail(string $email): void
+    {
+        $this->email = $email;
     }
 
-    #[ArrayShape(['id' => 'int|null', 'login' => 'string', 'createdAt' => 'string', 'updatedAt' => 'string'])]
+    #[ArrayShape([
+        'id' => 'int|null',
+        'login' => 'string',
+        'password' => 'string',
+        'email' => 'string',
+        'createdAt' => 'string',
+        'updatedAt' => 'string'
+    ])]
     public function toArray(): array
     {
         return [
             'id' => $this->id,
             'login' => $this->login,
-            'createdAt' => $this->createdAt->format('Y-m-d H:i:s'),
-            'updatedAt' => $this->updatedAt->format('Y-m-d H:i:s'),
+            'password' => $this->password,
+            'email' => $this->email,
+            'createdAt' => $this->createdAt?->format(self::DATE_TIME_FORMAT),
+            'updatedAt' => $this->updatedAt?->format(self::DATE_TIME_FORMAT)
         ];
     }
 }
