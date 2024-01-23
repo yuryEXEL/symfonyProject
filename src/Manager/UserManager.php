@@ -21,10 +21,15 @@ class UserManager
         $user->setEmail($email);
         $user->setCreatedAt();
         $user->setUpdatedAt();
-        $this->entityManager->persist($user);
-        $this->entityManager->flush();
+        $this->saveUser($user);
 
         return $user;
+    }
+
+    public function saveUser(User $user): void
+    {
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
     }
 
     public function clearEntityManager(): void

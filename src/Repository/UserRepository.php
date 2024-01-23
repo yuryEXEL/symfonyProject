@@ -16,19 +16,8 @@ class UserRepository extends ServiceEntityRepository
         parent::__construct($registry, Url::class);
     }
 
-    public function findByLogin(string $login): ?Url
+    public function findByEmail(string $email): ?User
     {
-        return $this->findOneBy(['login' => $login]);
-    }
-
-    /**
-     * @return User[]
-     */
-    public function findUsersByCriteria(string $login): array
-    {
-        $criteria = Criteria::create();
-        $criteria->andWhere(Criteria::expr()?->eq('login', $login));
-
-        return $this->matching($criteria)->toArray();
+        return $this->findOneBy(['email' => $email]);
     }
 }
