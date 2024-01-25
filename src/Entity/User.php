@@ -3,13 +3,17 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\Doctrine\UuidGenerator;
 use App\Doctrine\Trait\MetaTimestampsTrait;
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use JetBrains\PhpStorm\ArrayShape;
 
 #[ORM\Table(name: '`user`')]
 #[ORM\Entity(repositoryClass: UserRepository::class)]
+#[ORM\UniqueConstraint(name: 'users__email__uidx', columns: ['email'])]
 class User implements HasMetaTimestampsInterface
 {
     use MetaTimestampsTrait;
@@ -19,23 +23,33 @@ class User implements HasMetaTimestampsInterface
     #[ORM\Column(name: 'id', type: 'bigint', unique: true)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    private ?int $id = null;
+    #[ORM\CustomIdGenerator(class: UuidGenerator::class)]
+    private ?string $id = null;
 
     #[ORM\Column(type: 'string', length: 32, nullable: false)]
     private string $login;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: false)]
+    #[ORM\Column(type: 'string', length: 128, nullable: false)]
     private string $password;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: false)]
+    #[ORM\Column(type: 'string', length: 128, nullable: false)]
     private string $email;
 
-    public function getId(): int
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Url::class)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'SET NULL')]
+    private Collection $urls;
+
+    public function __construct()
+    {
+        $this->urls = new ArrayCollection();
+    }
+
+    public function getId(): ?string
     {
         return $this->id;
     }
 
-    public function setId(int $id): void
+    public function setId(string $id): void
     {
         $this->id = $id;
     }
@@ -70,11 +84,26 @@ class User implements HasMetaTimestampsInterface
         $this->email = $email;
     }
 
+    public function addUrl(Url $url): void
+    {
+        if (!$this->urls->contains($url)) {
+            $this->urls->add($url);
+        }
+    }
+
     #[ArrayShape([
         'id' => 'int|null',
         'login' => 'string',
         'password' => 'string',
         'email' => 'string',
+        'url' => [
+            'id' => 'int|null',
+            'originalUrl' => 'string',
+            'minifiedUrl' => 'string',
+            'countClick' => 'int|null',
+            'createdAt' => 'string',
+            'updatedAt' => 'string'
+        ],
         'createdAt' => 'string',
         'updatedAt' => 'string'
     ])]
@@ -85,6 +114,7 @@ class User implements HasMetaTimestampsInterface
             'login' => $this->login,
             'password' => $this->password,
             'email' => $this->email,
+            'url' => array_map(static fn(Url $url) => $url->toArray(), $this->urls->toArray()),
             'createdAt' => $this->createdAt?->format(self::DATE_TIME_FORMAT),
             'updatedAt' => $this->updatedAt?->format(self::DATE_TIME_FORMAT)
         ];

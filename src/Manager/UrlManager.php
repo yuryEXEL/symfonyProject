@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Manager;
 
 use App\Entity\Url;
+use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 
 class UrlManager
@@ -13,17 +14,22 @@ class UrlManager
     ) {
     }
 
-    public function create(string $originalUrl): Url
+    public function create( User $user, string $originalUrl): Url
     {
         $url = new Url();
-        $url->setOriginalUrl($originalUrl);
-        $minifiedUrl = 'do something';
-        $url->setMinifiedUrl($minifiedUrl);
-        $url->setCreatedAt();
-        $url->setUpdatedAt();
+        $url->setUser($user);
+        if(!empty($originalUrl)) {
+            $url->setOriginalUrl($originalUrl);
+            $minifiedUrl = 'do something';
+            $url->setMinifiedUrl($minifiedUrl);
+            $url->setCreatedAt();
+            $url->setUpdatedAt();
+        }
+        $user->addUrl($url);
         $this->entityManager->persist($url);
         $this->entityManager->flush();
 
         return $url;
     }
+
 }
