@@ -17,10 +17,14 @@ class UserBuilderService
 
     /**
      * @param string $login
+     * @param string $password
+     * @param string $email
+     * @param array|null $urls
+     * @return User
      */
-    public function createUserWithUrl(string $login, string $password, string $email, array $urls): User
+    public function createUserWithUrl(string $login, string $password, string $email, ?array $urls = []): User
     {
-        $user = $this->userManager->create($login,$password,$email);
+        $user = $this->userManager->create($login, $password, $email);
         foreach ($urls as $url) {
             $this->urlManager->create($user, $url);
         }

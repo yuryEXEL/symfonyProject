@@ -18,11 +18,13 @@ class UrlManager
     {
         $url = new Url();
         $url->setUser($user);
-        $url->setOriginalUrl($originalUrl);
-        $minifiedUrl = 'do something';
-        $url->setMinifiedUrl($minifiedUrl);
-        $url->setCreatedAt();
-        $url->setUpdatedAt();
+        if(!empty($originalUrl)) {
+            $url->setOriginalUrl($originalUrl);
+            $minifiedUrl = 'do something';
+            $url->setMinifiedUrl($minifiedUrl);
+            $url->setCreatedAt();
+            $url->setUpdatedAt();
+        }
         $user->addUrl($url);
         $this->entityManager->persist($url);
         $this->entityManager->flush();
