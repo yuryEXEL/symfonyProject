@@ -10,6 +10,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use JetBrains\PhpStorm\ArrayShape;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Table(name: '`user`')]
 #[ORM\Entity(repositoryClass: UserRepository::class)]
@@ -89,6 +90,11 @@ class User implements HasMetaTimestampsInterface
         if (!$this->urls->contains($url)) {
             $this->urls->add($url);
         }
+    }
+
+    public function getUrls(): ?array
+    {
+        return $this->urls->toArray();
     }
 
     #[ArrayShape([
