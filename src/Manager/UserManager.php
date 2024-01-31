@@ -1,8 +1,10 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Manager;
 
+use App\DTO\ManageUserDTO;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\Criteria;
@@ -27,6 +29,16 @@ class UserManager
         $this->saveUser($user);
 
         return $user;
+    }
+
+    public function saveUserFromDTO(User $user, ManageUserDTO $manageUserDTO): ?int
+    {
+        $user->setLogin($manageUserDTO->login);
+        $user->setPassword($manageUserDTO->password);
+        $user->setEmail($manageUserDTO->email);
+        $this->saveUser($user);
+
+        return (int)$user->getId();
     }
 
     public function saveUser(User $user): void
